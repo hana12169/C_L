@@ -5,10 +5,8 @@
     > Created Time: Wed 17 Aug 2016 10:02:47 PM CST
  ************************************************************************/
 
-#include<iostream>
 #include<pthread.h>
 
-using namespace std;
 
 struct job
 {
@@ -35,7 +33,7 @@ struct threadpool
 
 struct threadpool* threadpool_init(int thread_num, int queue_max_num);
 
-int threadpool_add_job(struct threadpool *pool, void* (callback_fun) (void *arg), void arg);
+int threadpool_add_job(struct threadpool *pool, void* (callback_fun) (void *arg), void *arg);
 int threadpool_destroy(struct threadpool *pool);
 void* threadpool_fun (void *arg);
 

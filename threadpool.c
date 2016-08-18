@@ -6,14 +6,17 @@
  ************************************************************************/
 
 #include<stdio.h>
-#include<threadpool.h>
+#include<assert.h>
+#include<stdlib.h>
+#include<string.h>
+#include "threadpool.h"
 
-struct threadpool* threadpool_init(int thread_num int queue_max_num)
+struct threadpool* threadpool_init(int thread_num, int queue_max_num)
 {
 	struct threadpool *pool =NULL;
 	do
 	{
-		pool = malloc(sizeof(struct ghreadpool));
+		pool = malloc(sizeof(struct threadpool));
 		if(NULL == pool)
 		{
 			printf("failed to malloc threadpool!\n");
@@ -29,23 +32,23 @@ struct threadpool* threadpool_init(int thread_num int queue_max_num)
 			printf("failed to init mutex!\n");
 			break;
 		}
-		if (pthread_cond_init(&(pool_queue_empty), NULL))
+		if (pthread_cond_init(&(pool->queue_empty), NULL))
 		{
 			printf("failed to init queue_empty!\n");
 			break;
 		}
-		if (pthread_cond_init(&(pool_queue_not_empty), NULL))
+		if (pthread_cond_init(&(pool->queue_not_empty), NULL))
 		{
 			printf("failed to init queue_not_empty!\n");
 			break;
 		}
-		if (pthread_cond_init(&(pool_queue_not_full), NULL))
+		if (pthread_cond_init(&(pool->queue_not_full), NULL))
 		{
 			printf("failed to init queue_not_full!\n");
 			break;
 		}
-		pool_threads = malloc(sizeof(pthread_t) * thread_num );
-		if (NULL == pool->threads)
+		pool->pthreads = malloc(sizeof(pthread_t) * thread_num );
+		if (NULL == pool->pthreads)
 		{
 			printf("failed to malloc pthreads!\n");
 			break;
@@ -55,14 +58,14 @@ struct threadpool* threadpool_init(int thread_num int queue_max_num)
 		int i;
 		for (i=0; i<pool->thread_num; ++i)
 		{
-			pthread_create(&(pool->threads[i]), NULL, threadpool_fun, (void *)pool);
+			pthread_create(&(pool->pthreads[i]), NULL, threadpool_fun, (void *)pool);
 		}
 		return pool;
 	}while (0);
 	return NULL;
 }
 
-int threadpool_add_job(struct threadpool* pool void* (*callback_fun) (void *arg), void *arg)
+int threadpool_add_job(struct threadpool* pool, void* (*callback_fun) (void *arg), void *arg)
 {
 	assert(pool !=NULL);
 	assert(callback_fun != NULL);
@@ -79,13 +82,13 @@ int threadpool_add_job(struct threadpool* pool void* (*callback_fun) (void *arg)
 		return -1;
 	}
 	struct job *pjob = (struct job*) malloc (sizeof (struct job));
-	if (NULL == job )
+	if (NULL == pjob )
 	{
 		pthread_mutex_unlock(&(pool->mutex));
 		return -1;
 	}
 	pjob->callback_fun = callback_fun;
-	pjob_arg = arg;
+	pjob->arg = arg;
 	pjob->next = NULL;
 	if (pool->head == NULL)
 	{
@@ -98,7 +101,7 @@ int threadpool_add_job(struct threadpool* pool void* (*callback_fun) (void *arg)
 		pool->tail = pjob;
 	}
 	pool->queue_cur_num++;
-	pthread_mutex_unlock(&(pool_mutex));
+	pthread_mutex_unlock(&(pool->mutex));
 	return 0;
 }
 
@@ -108,7 +111,7 @@ void* threadpool_fun(void* arg)
 	struct job *pjob = NULL;
 	while (1)
 	{
-		thread_mutex_lock(&(pool->mutex));
+		pthread_mutex_lock(&(pool->mutex));
 		while ((pool->queue_cur_num == 0) && !pool->pool_close)
 		{
 			pthread_cond_wait (&(pool->queue_not_empty), &(pool->mutex));
@@ -122,7 +125,7 @@ void* threadpool_fun(void* arg)
 		pjob = pool->head;
 		if (pool->queue_cur_num == 0)
 		{
-			pool_head = pool_tail = NULL;
+			pool->head = pool->tail = NULL;
 		}
 		else
 		{
@@ -143,33 +146,33 @@ void* threadpool_fun(void* arg)
 	}
 }
 
-int threadpool_destory(struct thraedpool *pool)
+int threadpool_destory(struct threadpool *pool)
 {
 	assert(pool != NULL );
 	pthread_mutex_lock(&(pool->mutex));
 	if (pool->queue_close || pool->pool_close)
 	{
-		pthread_mutex_unlock(&(pool->mutext));
+		pthread_mutex_unlock(&(pool->mutex));
 		return -1;
 	}
 	pool->queue_close = 1;
 	while (pool->queue_cur_num != 0 )
 	{
-		pthread_cond_wait(&(pool_queue_empty), &(pool->mutex));
+		pthread_cond_wait(&(pool->queue_empty), &(pool->mutex));
 	}
 	pool->pool_close = 1;
 	pthread_mutex_unlock (&(pool->mutex));
 	pthread_cond_broadcast(&(pool->queue_not_empty));
 	pthread_cond_broadcast(&(pool->queue_not_full));
 	int i;
-	for(i=0; i<pool_thread_num; ++i)
+	for(i=0; i<pool->thread_num; ++i)
 	{
 		pthread_join(pool->pthreads[i],NULL);
 	}
-	pthread_mutex_destory(&(pool->mutex));
-	pthread_ond_destory(&(pool->queue_empty));
-	pthread_ond_destory(&(pool->queue_not_empty));
-	pthread_ond_destory(&(pool->queue_not_full));
+	pthread_mutex_destroy(&(pool->mutex));
+	pthread_cond_destroy(&(pool->queue_empty));
+	pthread_cond_destroy(&(pool->queue_not_empty));
+	pthread_cond_destroy(&(pool->queue_not_full));
 	free(pool->pthreads);
 	struct job *p;
 	while (pool->head != NULL)

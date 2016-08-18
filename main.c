@@ -6,7 +6,7 @@
  ************************************************************************/
 
 #include<stdio.h>
-#include<threadpool.h>
+#include "threadpool.h"
 
 void *work(void* arg)
 {
@@ -60,6 +60,6 @@ int main(void)
 	threadpool_add_job(pool, work, "40");
 
 	sleep(5);
-	threadpool_destroy(pool);
+	threadpool_destory(pool);
 	return 0;
 }
