@@ -24,7 +24,7 @@ int main()
 	pthread_t t_b;
 
 	pthread_create(&t_a, NULL, thread2, (void*)NULL);
-	sleep(1);
+	usleep(200000);
 	pthread_create(&t_b, NULL, thread1, (void*)NULL);
 
 	pthread_join(t_a, NULL);
@@ -47,6 +47,7 @@ void *thread2 (void *arg)
 	pthread_mutex_lock(&mutex);
 	printf("call thread2\n");
 	pthread_cond_wait(&cond, &mutex);
+	printf("thread2 calling\n");
 	sleep(1);
 	printf("thread2 called\n");
 	pthread_mutex_unlock(&mutex);
