@@ -24,7 +24,7 @@ int main()
 	pthread_t t_b;
 
 	pthread_create(&t_a, NULL, thread2, (void*)NULL);
-	usleep(200000);
+	sleep(1);
 	pthread_create(&t_b, NULL, thread1, (void*)NULL);
 
 	pthread_join(t_a, NULL);
