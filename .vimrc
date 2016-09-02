@@ -106,13 +106,13 @@ func SetTitle()
 
         call append(line(".")+1, "\# Author: zguiq") 
 
-        call append(line(".")+3, "\# Created Time: ".strftime("%c")) 
+        call append(line(".")+2, "\# Created Time: ".strftime("%c")) 
 
-        call append(line(".")+4, "\#########################################################################") 
+        call append(line(".")+3, "\#########################################################################") 
 
-        call append(line(".")+5, "\#!/bin/bash") 
+        call append(line(".")+4, "\#!/bin/bash") 
 
-        call append(line(".")+6, "") 
+        call append(line(".")+5, "") 
 
     else 
 
@@ -122,11 +122,11 @@ func SetTitle()
 
         call append(line(".")+1, "    > Author: zguiq") 
 
-        call append(line(".")+3, "    > Created Time: ".strftime("%c")) 
+        call append(line(".")+2, "    > Created Time: ".strftime("%c")) 
 
-        call append(line(".")+4, " ************************************************************************/") 
+        call append(line(".")+3, "************************************************************************/") 
 
-        call append(line(".")+5, "")
+        call append(line(".")+4, "")
 
     endif
 
@@ -142,9 +142,9 @@ func SetTitle()
 
     if &filetype == 'c'
 
-        call append(line(".")+6, "#include<stdio.h>")
+        call append(line(".")+5, "#include<stdio.h>")
 
-        call append(line(".")+7, "")
+        call append(line(".")+6, "")
 
     endif
 
