@@ -25,6 +25,7 @@ int main()
 	pthread_t t_b;
 	
 	pthread_create(&t_a, NULL, thread2, (void*)NULL);
+	usleep(3000);
 	pthread_create(&t_b, NULL, thread1, (void*)NULL);
 	
 	pthread_join(t_b, NULL);
@@ -35,29 +36,31 @@ int main()
 
 void *thread1 (void* junk)
 {
-	for (i = 1; i<9; i++)
+	for (i = 1; i<=4; i++)
 	{
 		pthread_mutex_lock(&mutex);
 		printf("call thread1 \n");
 		if (i%3 == 0)
 		{
 			pthread_cond_signal(&cond);
+			i++;
 		}
 		else
 			printf("thread1:%d\n",i);
 		pthread_mutex_unlock(&mutex);
-		sleep(1);
+		usleep(300000);
 	}
 }
 
 void *thread2 (void *junk)
 {
-	while(i<9)
+	while(i<5)
 	{
 		pthread_mutex_lock(&mutex);
 		printf("call thread2\n");
 		if(i%3 != 0)
 			pthread_cond_wait(&cond, &mutex);
+		sleep(1);
 		printf("thread2:%d\n",i);
 		pthread_mutex_unlock(&mutex);
 		sleep(1);
