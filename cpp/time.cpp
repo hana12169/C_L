@@ -1,39 +1,59 @@
 /*************************************************************************
-    > File Name: date.cpp
+    > File Name: time.cpp
     > Author: zguiq
-    > Created Time: Thu 10 Nov 2016 09:17:53 PM CST
+    > Created Time: Sunday, November 13, 2016 AM08:29:43 CST
 ************************************************************************/
-#ifndef _TIME_
-#define _TIME_
+#include "time.h"
 
-
-class mTime{
-	public:
-		int hour;
-		int min;
-		int sec;
-		mTime(int thour, int tmin, int tsec)
-		{
-			hour =thour%12;
-			min  =tmin%60;
-			sec  =tsec%60;
-		}
-		mTime()
-		{
-			hour = 0;
-			min  = 0;
-			sec  = 0;
-		}
-		mTime(const mTime& mtime)
-		{
-			hour= mtime.hour;
-			min = mtime.min;
-			sec = mtime.sec;
-		}
-};
-
-mTime operator+(const mTime &time1, const mTime &time2)
+mTime::mTime()
 {
-	return mTime(time1.hour+time2.hour,time1.min+time2.min,time1.sec+time2.sec);
+	hour =0;
+	min  =0;
+	sec  =0;
 }
-#endif
+mTime::mTime(int a, int b, int c)
+{
+	hour = a %= 12;
+	min  = b %= 60;
+	sec  = c %= 60;
+}
+mTime operator+(const mTime time1, const mTime time2)
+{
+	mTime time;
+	time.sec = time1.sec + time2.sec;
+	if(time.sec > 60)
+	{
+		time.min = 1;
+		time.sec %= 60;
+	}
+	time.min +=(time1.min + time2.min);
+	if(time.min > 60)
+	{
+		time.hour = 1;
+		time.min %=60;
+	}
+	time.hour += (time1.hour + time2.hour);
+	time.hour %=12;
+	return time;
+
+	//return (mTime(time1.hour+time2.hour, time1.min+time2.min, time1.sec+time2.sec));	
+}
+mTime operator-(const mTime time1, const mTime time2)
+{
+	mTime time;
+	time.sec = time1.sec - time2.sec;
+	if(time.sec < 0)
+	{
+		time.min = -1;
+		time.sec += 60;
+	}
+	time.min +=(time1.min - time2.min);
+	if(time.min < 0)
+	{
+		time.hour = -1;
+		time.min +=60;
+	}
+	time.hour += (time1.hour - time2.hour);
+	return time;
+	//return (mTime(time1.hour-time2.hour, time1.min-time2.min, time1.sec-time2.sec));
+}

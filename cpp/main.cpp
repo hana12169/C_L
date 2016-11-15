@@ -5,7 +5,7 @@
 ************************************************************************/
 #include "singleton.h"
 #include <stdio.h>
-#include "time.cpp"
+#include "time.h"
 
 class ca
 {
@@ -13,6 +13,7 @@ class ca
 		static int mem;
 };
 int ca::mem ;
+
 
 int fun()
 {
@@ -44,9 +45,9 @@ int main()
 	//	printf("i=%d,count=%d\n",i,fun());
 	//}
 	//printf("\n");
-	mTime time(26,300,400);
+	mTime time(14,95,93);
 	mTime time1(time);
-	mTime time2 = mTime(30,400,500);
+	mTime time2 = mTime(13,97,98);
 	mTime time3 = time2;
 	printf("time1 is %d:%d:%d\n",time1.hour,time1.min,time1.sec);
 	printf("time2 is %d:%d:%d\n",time2.hour,time2.min,time2.sec);
@@ -54,4 +55,6 @@ int main()
 	mTime timesum;
 	timesum = time1 + time2;
 	printf("timesum is %d:%d:%d\n",timesum.hour,timesum.min,timesum.sec);
+	mTime timemin = time1 - time2;
+	printf("timemin is %d:%d:%d\n",timemin.hour,timemin.min,timemin.sec);
 }
