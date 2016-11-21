@@ -19,7 +19,7 @@ int findsubstr(string &s)
 	for(it++ ;it != s.end();it++)
 	{
 
-		found = s.find(*it);
+		found = tmp.find(*it);
 		if(string::npos == found)
 		{
 			tmp += *it;
@@ -28,13 +28,20 @@ int findsubstr(string &s)
 		}
 		else
 		{
-			if(found < tmp.length()-1)
+			try
 			{
-				tmp = tmp.substr(found+1);
-				tmp += *it;
+				if(found < tmp.length()-1)
+				{
+					tmp = tmp.substr(found+1);
+					tmp += *it;
+				}
+				else
+					tmp = tmp.substr(found);
 			}
-			else
-				tmp = tmp.substr(found);
+			catch(int)
+			{
+				cout<<"catch error"<<found<<endl;
+			}
 		}
 	}
 	return result;
